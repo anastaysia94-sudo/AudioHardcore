@@ -1,0 +1,13 @@
+services:
+  audiohardcore:
+    build: .
+    ports:
+      - "8765:8765"
+    environment:
+      AUDIOHARDCORE_ENV: production
+      AUDIOHARDCORE_AUTH_SECRET: ${AUDIOHARDCORE_AUTH_SECRET:?Set a long random secret}
+      AUDIOHARDCORE_DATA_DIR: /data
+    volumes:
+      - audiohardcore-data:/data
+volumes:
+  audiohardcore-data:
