@@ -1,0 +1,31 @@
+name: AudioHardcore Windows Build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '**.py'
+      - 'backend/**'
+      - 'core/**'
+      - 'desktop/**'
+      - 'build_windows.ps1'
+      - '.github/workflows/windows-build.yml'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: python -m pip install -e . pyinstaller
+      - name: Build executable
+        shell: pwsh
+        run: ./build_windows.ps1
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: audiohardcore-windows
+          path: dist/**
