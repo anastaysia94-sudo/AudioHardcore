@@ -21,6 +21,9 @@ Cost target: Free/open development stack.
 - WordPress connector plugin + shortcode/settings documentation.
 - Dockerfile and Docker Compose deployment.
 - SMF integration contract/documentation.
+- Four-AI continuation protocol for ChatGPT, GitHub Copilot, Grok and Perplexity.
+- Copilot-specific repository instructions.
+- Ready-to-paste prompts and GitHub publishing protocol in `docs/AI_PROMPTS.md`.
 
 ## Verification
 - `python -m compileall -q .` -> success
@@ -33,6 +36,15 @@ Cost target: Free/open development stack.
 - WordPress: ZIP `wordpress/audiohardcore-integration/`, install via Plugins > Add New > Upload Plugin; configure Settings > AudioHardcore; use `[audiohardcore_library]`.
 - Docker: `docker compose up --build -d` with `AUDIOHARDCORE_AUTH_SECRET` set.
 
+## Four-AI synchronization
+Read `docs/AI_CONTINUATION.md` first.
+- ChatGPT = architecture reconciliation, implementation/testing coordination, release state.
+- GitHub Copilot = in-repository implementation, tests, refactors and CI/platform work.
+- Grok = adversarial engineering review, UX critique, alternatives and edge cases.
+- Perplexity = current technical research and primary-source verification.
+
+`docs/AI_PROMPTS.md` contains ready-to-paste prompts for all four systems plus the shared continuation and GitHub publishing commands.
+
 ## Operator-specific production steps
 - HTTPS/TLS and DNS.
 - Managed backups/monitoring.
@@ -42,10 +54,5 @@ Cost target: Free/open development stack.
 - Production cloud database/object storage if cloud media is desired.
 - Payments/subscriptions only if commercial features are enabled.
 - Version-specific SMF connector implementation.
-
-## Three-AI synchronization
-Perplexity = current technical research/source verification.
-Grok = engineering challenge/review and alternative implementation analysis.
-ChatGPT = architecture reconciliation, implementation, testing and project-state authority.
 
 Truth labels: Implemented = code exists; Tested = automated/manual test executed; Verified = externally confirmed; Operator step = requires deployment credentials/hardware/environment.
