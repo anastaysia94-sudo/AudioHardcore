@@ -1,78 +1,49 @@
 # AudioHardcore Project State
 
-**Project:** AudioHardcore  
-**Architecture:** AH-ARCH-1.0  
-**Build:** AH-MVP-0.8.0  
-**Date:** 2026-09-05  
-**Status:** Active development  
-**Cost target:** 100% free/open-source development stack; no paid API/service is required by the current MVP.
+Project: AudioHardcore
+Release: 0.9.0
+Architecture: AH-ARCH-1.0
+Status: Active development / local-first release candidate
+Owner: Product owner (user)
 
-## Confirmed requirements
-- 1,800+ MP3 initial collection
-- Windows, macOS, Android, Amazon Fire targets
-- Metadata preservation and controlled write-back
-- Local/offline-first library
-- Future multi-device synchronization
-- Website
-- WordPress integration
-- SMF/community integration
-- Future monetization
-- Modern music/social UX direction inspired by YouTube Music + Facebook information density/navigation without copying proprietary branding/assets
+## Verified baseline
+- 1,800+ MP3 target library.
+- Windows, macOS, Android, Amazon Fire targets.
+- Local/offline-first music library.
+- SHA-256 track identity and recursive scanner.
+- Mutagen metadata extraction and controlled write-back with backups.
+- SQLite persistence with schema migrations/versioning and WAL mode.
+- Search, favorites, ratings, history, playlists, duplicate detection.
+- Native Tkinter desktop client with browse/search/queue/watch/backup/restore foundations.
+- Android Studio project with MediaStore discovery/search and foreground playback-service foundation.
+- WordPress connector and installation documentation.
+- GitHub Actions Android debug APK and Windows build workflows.
 
-## Implemented
-- SQLite local persistence
-- Recursive audio scanner
-- SHA-256 content identity
-- Mutagen metadata extraction
-- FastAPI local API
-- Search, pagination, favorites, ratings
-- Local media streaming
-- Browser library UI
-- Duplicate detection endpoint/UI
-- Playlist CRUD + track management
-- Safe MP3 metadata write-back with timestamped backups
-- Embedded artwork endpoint
-- Automatic re-scan after MP3 write-back
-- Play-count/history foundation
-- Dependency-free polling filesystem watcher
-- Native Tkinter desktop client shell
-- Desktop library search/filtering and context actions
-- Album/artist/recently-played browse views
-- Queue/next-track controls
-- Metadata editor, playlist-add, folder-import, backup/restore UI
-- Free Windows install script
-- Free Windows PyInstaller build script
-- Unified desktop launcher
-- Native Android Studio project with MediaStore discovery/search/playback
-- Android APK build/release documentation
-- WordPress integration plugin foundation with settings and shortcode
-- WordPress installation/integration documentation
+## Tested in the development environment
+- python -m compileall -q .
+- pytest -q -> 9 passed
 
-## Tested
-- `python -m compileall -q .`
-- `pytest -q` → 9 passed
+## Deliberate boundaries
+- No personal music library or local DB in source control.
+- No signing keys or generated binaries committed.
+- Cloud authentication/sync is not yet a production service.
+- SMF integration and commercial billing are not yet implemented.
 
-## Not yet production-complete
-- Compiled Android APK artifact from this environment
-- Production Windows/macOS packaging and signing
-- Authentication/accounts
-- Cloud backend
-- Multi-device sync/conflict resolution
-- Cloud/off-device music storage
-- Full Android feature parity/background playback/media session
-- Full WordPress administration/content integration
-- SMF connector
-- Payments/subscriptions
-- Production updater
+## Build instructions
+- Android: GitHub Actions workflow `.github/workflows/android-apk.yml` or local Gradle/Android Studio; see `docs/ANDROID_APK_BUILD.md`.
+- Windows: GitHub Actions workflow `.github/workflows/windows-build.yml` or local `build_windows.ps1`.
+- WordPress: install `wordpress/audiohardcore-integration/` as a ZIP; configure **Settings > AudioHardcore**; use `[audiohardcore_library]`; see `docs/WORDPRESS_INSTALL.md`.
 
-## Immediate next build
-AH-MVP-0.9: Android feature parity, database migrations/versioning, production packaging workflows, authenticated cloud-sync API, richer WordPress integration, and SMF/account integration design.
+## Next production milestone
+- Complete Android background/media-session controls and feature parity.
+- Add authenticated accounts and device registration.
+- Add cloud sync and deterministic conflict resolution.
+- Expand WordPress connector and add stable SMF integration.
+- Add signed release packaging and update mechanism.
 
-## Truth labels
-Implemented = code exists.  
-Tested = automated/manual test executed.  
-Verified = confirmed against external official source, device, or service.  
-Planned = not implemented.
+## Three-AI synchronization
+Perplexity = current technical research/source verification.
+Grok = engineering challenge/review and alternative implementation analysis.
+ChatGPT = architecture reconciliation, implementation, testing, and project-state authority.
 
-## Cross-AI handoff rule
-ChatGPT, Grok, and Perplexity treat this file as the portable project state. Preserve explicit user decisions, distinguish facts from recommendations, and append meaningful changes after substantive development work.
+Truth labels: Implemented = code exists; Tested = automated/manual test executed; Verified = externally confirmed; Planned = not implemented.
