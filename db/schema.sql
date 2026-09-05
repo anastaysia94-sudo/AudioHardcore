@@ -8,6 +8,8 @@ CREATE INDEX IF NOT EXISTS idx_tracks_album ON tracks(album);
 CREATE INDEX IF NOT EXISTS idx_tracks_title ON tracks(title);
 CREATE INDEX IF NOT EXISTS idx_tracks_sha256 ON tracks(sha256);
 CREATE INDEX IF NOT EXISTS idx_tracks_favorite ON tracks(is_favorite);
+CREATE INDEX IF NOT EXISTS idx_tracks_updated_at ON tracks(updated_at);
+CREATE INDEX IF NOT EXISTS idx_tracks_play_count ON tracks(play_count);
 CREATE TABLE IF NOT EXISTS file_locations (id INTEGER PRIMARY KEY, track_id TEXT NOT NULL, path TEXT NOT NULL UNIQUE, filename TEXT NOT NULL, size_bytes INTEGER NOT NULL, modified_ns INTEGER NOT NULL, first_seen_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, last_seen_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(track_id) REFERENCES tracks(id) ON DELETE CASCADE);
 CREATE INDEX IF NOT EXISTS idx_file_locations_track ON file_locations(track_id);
 CREATE TABLE IF NOT EXISTS playlists (id INTEGER PRIMARY KEY, name TEXT NOT NULL, description TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
@@ -16,3 +18,4 @@ CREATE INDEX IF NOT EXISTS idx_playlist_tracks_playlist_position ON playlist_tra
 CREATE TABLE IF NOT EXISTS metadata_backups (id INTEGER PRIMARY KEY, track_id TEXT NOT NULL, source_path TEXT NOT NULL, backup_path TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(track_id) REFERENCES tracks(id) ON DELETE CASCADE);
 CREATE TABLE IF NOT EXISTS play_history (id INTEGER PRIMARY KEY, track_id TEXT NOT NULL, played_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(track_id) REFERENCES tracks(id) ON DELETE CASCADE);
 CREATE INDEX IF NOT EXISTS idx_play_history_track_time ON play_history(track_id, played_at);
+CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
