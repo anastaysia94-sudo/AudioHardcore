@@ -1,0 +1,16 @@
+{
+  "name": "AudioHardcore",
+  "release": "0.9.0",
+  "status": "free local-first source release",
+  "tests": "9 passed",
+  "android_apk": "GitHub Actions debug build",
+  "windows": "GitHub Actions build",
+  "wordpress": "connector included",
+  "paid_services_required": false,
+  "known_limits": [
+    "Compiled APK is produced as a workflow artifact rather than committed to source",
+    "Windows executable is produced as a workflow artifact rather than committed to source",
+    "Production cloud authentication/sync requires deployment infrastructure",
+    "SMF integration and billing are separate milestones"
+  ]
+}
