@@ -1,0 +1,45 @@
+name: AudioHardcore Operations
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "core/**"
+      - "db/**"
+      - "scripts/verify_backup.py"
+      - "docs/OPERATIONS_READINESS.md"
+      - ".github/workflows/operations.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  backup-restore-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Create migrated database and backup copy
+        env:
+          AUDIOHARDCORE_DB: ${{ runner.temp }}/audiohardcore.sqlite3
+        run: |
+          python - <<'PY'
+          import os, shutil
+          from pathlib import Path
+          from backend.app.db import init_db, db_path
+          init_db()
+          source=db_path()
+          with __import__('sqlite3').connect(source) as conn:
+              conn.execute("INSERT INTO playlists(name, description) VALUES (?, ?)", ("Operations smoke", "backup integrity fixture"))
+              conn.commit()
+          backup=Path(os.environ['RUNNER_TEMP'])/'audiohardcore-backup.sqlite3'
+          shutil.copy2(source, backup)
+          print(backup)
+          PY
+      - name: Verify backup is readable and structurally complete
+        run: python scripts/verify_backup.py "$RUNNER_TEMP/audiohardcore-backup.sqlite3" --max-age-hours 1
