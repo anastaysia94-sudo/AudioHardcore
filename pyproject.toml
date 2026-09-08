@@ -1,6 +1,6 @@
 [project]
 name = "audiohardcore"
-version = "0.1.0"
+version = "1.1.0"
 description = "AudioHardcore music library and media ecosystem core"
 requires-python = ">=3.11"
 dependencies = [
@@ -9,6 +9,11 @@ dependencies = [
   "mutagen>=1.47,<2",
   "pydantic>=2.10,<3",
 ]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["backend*", "core*", "desktop*"]
+exclude = ["android*", "clients*", "releases*", "tests*", "web*", "wordpress*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
