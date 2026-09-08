@@ -8,6 +8,7 @@ on:
       - 'backend/**'
       - 'core/**'
       - 'desktop/**'
+      - 'pyproject.toml'
       - 'build_windows.ps1'
       - '.github/workflows/windows-build.yml'
 
