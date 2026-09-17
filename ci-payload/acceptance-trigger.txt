@@ -1,0 +1,4 @@
+Resonance v0.1 acceptance verification trigger
+Source payload family: build-v2-input.part-*
+Purpose: trigger the isolated draft PR CI lane after the temporary base-branch verifier became available.
+Do not merge this branch into AudioHardcore main.
