@@ -2,8 +2,7 @@ name: Resonance v0.1 PR Acceptance TEMP
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'ci-payload/**'
       - '.github/workflows/resonance-v01-acceptance.yml'
@@ -14,6 +13,9 @@ permissions:
 concurrency:
   group: resonance-v01-pr-acceptance-${{ github.event.pull_request.number }}
   cancel-in-progress: true
+
+env:
+  RESONANCE_ARCHIVE_SHA256: a515774cea95f3913c1f852409c0022924ff17712e6c4db5ad03fadeda6b810f
 
 jobs:
   android:
@@ -26,23 +28,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Reconstruct Resonance source payload
+      - name: Reconstruct and verify Resonance source
         shell: bash
         run: |
           python - <<'PY'
-          import base64, glob, hashlib, pathlib, zipfile
-          parts = sorted(glob.glob('ci-payload/build-v2-input.part-*'))
+          import base64, glob, hashlib, os, pathlib, tarfile
+          parts = sorted(glob.glob('ci-payload/source-xz.part-*'))
           if not parts:
-              raise SystemExit('No Resonance v2 payload parts found')
+              raise SystemExit('No verified Resonance source parts found')
           encoded = ''.join(pathlib.Path(p).read_text(encoding='utf-8').strip() for p in parts)
-          payload = base64.b64decode(encoded)
-          pathlib.Path('resonance-build-input.zip').write_bytes(payload)
-          print('payload_sha256=' + hashlib.sha256(payload).hexdigest())
-          with zipfile.ZipFile('resonance-build-input.zip') as z:
-              bad = z.testzip()
-              if bad:
-                  raise SystemExit(f'Corrupt ZIP member: {bad}')
-              z.extractall('work')
+          payload = base64.b64decode(encoded, validate=True)
+          actual = hashlib.sha256(payload).hexdigest()
+          expected = os.environ['RESONANCE_ARCHIVE_SHA256']
+          print('payload_sha256=' + actual)
+          if actual != expected:
+              raise SystemExit(f'Payload checksum mismatch: {actual} != {expected}')
+          archive = pathlib.Path('resonance-build-input.tar.xz')
+          archive.write_bytes(payload)
+          with tarfile.open(archive, 'r:xz') as t:
+              t.extractall('work')
           assert pathlib.Path('work/resonance/Cargo.toml').is_file()
           assert pathlib.Path('work/resonance/flutter/pubspec.yaml').is_file()
           PY
@@ -62,17 +66,17 @@ jobs:
           flutter-version: '3.47.2'
           channel: stable
           cache: true
-      - name: Rust format, tests and clippy
+      - name: Rust tests and quality gate
         working-directory: work/resonance
         run: |
           cargo fmt --all
           cargo fmt --all -- --check
           cargo test --workspace --all-targets
           cargo clippy --workspace --all-targets -- -D warnings
-      - name: Generate real Android Flutter scaffold
+      - name: Generate genuine Android Flutter scaffold
         working-directory: work/resonance/flutter
         run: flutter create --platforms=android --org com.smartpickshop --project-name resonance .
-      - name: Install and integrate flutter_rust_bridge 2.13.0
+      - name: Generate Flutter-Rust bridge
         working-directory: work/resonance/flutter
         shell: bash
         run: |
@@ -90,7 +94,7 @@ jobs:
         run: |
           flutter build apk --release
           flutter build appbundle --release
-      - name: Record Android checksums and generated scaffold
+      - name: Record Android checksums and scaffold
         working-directory: work/resonance/flutter
         shell: bash
         run: |
@@ -118,23 +122,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Reconstruct Resonance source payload
+      - name: Reconstruct and verify Resonance source
         shell: pwsh
         run: |
           @'
-          import base64, glob, hashlib, pathlib, zipfile
-          parts = sorted(glob.glob('ci-payload/build-v2-input.part-*'))
+          import base64, glob, hashlib, os, pathlib, tarfile
+          parts = sorted(glob.glob('ci-payload/source-xz.part-*'))
           if not parts:
-              raise SystemExit('No Resonance v2 payload parts found')
+              raise SystemExit('No verified Resonance source parts found')
           encoded = ''.join(pathlib.Path(p).read_text(encoding='utf-8').strip() for p in parts)
-          payload = base64.b64decode(encoded)
-          pathlib.Path('resonance-build-input.zip').write_bytes(payload)
-          print('payload_sha256=' + hashlib.sha256(payload).hexdigest())
-          with zipfile.ZipFile('resonance-build-input.zip') as z:
-              bad = z.testzip()
-              if bad:
-                  raise SystemExit(f'Corrupt ZIP member: {bad}')
-              z.extractall('work')
+          payload = base64.b64decode(encoded, validate=True)
+          actual = hashlib.sha256(payload).hexdigest()
+          expected = os.environ['RESONANCE_ARCHIVE_SHA256']
+          print('payload_sha256=' + actual)
+          if actual != expected:
+              raise SystemExit(f'Payload checksum mismatch: {actual} != {expected}')
+          archive = pathlib.Path('resonance-build-input.tar.xz')
+          archive.write_bytes(payload)
+          with tarfile.open(archive, 'r:xz') as t:
+              t.extractall('work')
           assert pathlib.Path('work/resonance/Cargo.toml').is_file()
           assert pathlib.Path('work/resonance/flutter/pubspec.yaml').is_file()
           '@ | python -
@@ -156,11 +162,11 @@ jobs:
           cargo fmt --all -- --check
           cargo test --workspace --all-targets
           cargo clippy --workspace --all-targets -- -D warnings
-      - name: Generate real Windows Flutter scaffold
+      - name: Generate genuine Windows Flutter scaffold
         working-directory: work/resonance/flutter
         shell: pwsh
         run: flutter create --platforms=windows --org com.smartpickshop --project-name resonance .
-      - name: Install and integrate flutter_rust_bridge 2.13.0
+      - name: Generate Flutter-Rust bridge
         working-directory: work/resonance/flutter
         shell: pwsh
         run: |
@@ -183,7 +189,7 @@ jobs:
         shell: pwsh
         run: |
           $release = 'build/windows/x64/runner/Release'
-          if (!(Test-Path $release)) { throw "Windows release directory missing" }
+          if (!(Test-Path $release)) { throw 'Windows release directory missing' }
           Compress-Archive -Path "$release/*" -DestinationPath resonance-windows-x64-release.zip -Force
           (Get-FileHash resonance-windows-x64-release.zip -Algorithm SHA256).Hash.ToLower() + '  resonance-windows-x64-release.zip' | Out-File WINDOWS_SHA256SUMS.txt -Encoding ascii
           Compress-Archive -Path windows,hook,lib/src/rust,rust/src/frb_generated.rs,pubspec.yaml,pubspec.lock,flutter_rust_bridge.yaml -DestinationPath resonance-windows-scaffold.zip -Force
