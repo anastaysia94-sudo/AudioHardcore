@@ -8,12 +8,18 @@ on:
     paths:
       - 'ci-payload/**'
       - '.github/workflows/resonance-v01-acceptance.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'ci-payload/**'
+      - '.github/workflows/resonance-v01-acceptance.yml'
 
 permissions:
   contents: read
 
 concurrency:
-  group: resonance-v01-acceptance
+  group: resonance-v01-acceptance-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
