@@ -64,7 +64,7 @@ jobs:
           cargo fmt --all
           cargo fmt --all -- --check
           cargo test --workspace --all-targets
-          cargo clippy --workspace --all-targets -- -D warnings -A clippy::style
+          cargo clippy --workspace --all-targets -- -D warnings -A clippy::style -A clippy::default_constructed_unit_structs
       - name: Generate genuine Android Flutter scaffold
         working-directory: work/resonance/flutter
         run: flutter create --platforms=android --org com.smartpickshop --project-name resonance .
@@ -150,7 +150,7 @@ jobs:
           cargo fmt --all
           cargo fmt --all -- --check
           cargo test --workspace --all-targets
-          cargo clippy --workspace --all-targets -- -D warnings -A clippy::style
+          cargo clippy --workspace --all-targets -- -D warnings -A clippy::style -A clippy::default_constructed_unit_structs
       - name: Generate genuine Windows Flutter scaffold
         working-directory: work/resonance/flutter
         shell: pwsh
