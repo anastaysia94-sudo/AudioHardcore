@@ -1,16 +1,21 @@
 # STATUS
 
-Updated: 2026-09-25 23:12 America/Los_Angeles
+Updated: 2026-09-26 America/Los_Angeles
 
 ## Purpose
 AudioHardcore and Resonance Digital Audio OS continuity.
 
-## VERIFIED SOURCE CHANGE
-- Commit `e8f3d9e7092278d2066c5fa523a3e423eae7b77e` keeps the Resonance temporary PR acceptance harness but stops re-running `flutter_rust_bridge_codegen integrate` before bridge generation on Linux and Windows.
+## VERIFIED SOURCE STATE
+- Current observed main head is `c9bc513477c33a0e26521ef89b338270ab101d07`.
+- The temporary Resonance PR acceptance harness remains present.
+- Recent workflow fixes normalize FRB `NoopSink` construction, normalize the newer FilePicker API shape, install `cargo-expand`, and make Flutter informational lints non-fatal.
+- The workflow still avoids the earlier problematic re-integration step before bridge generation.
+- The harness is intended to verify Rust format/tests/clippy, FRB generation, Flutter analysis/tests, Android APK/AAB output, and Windows x64 output.
 
 ## VERIFICATION PENDING
-- Fresh Linux and Windows temporary PR acceptance results after the newest bridge-generation fix.
+- Fresh current workflow result on the Resonance staging PR.
+- Android and Windows artifact proof after the newest compatibility changes.
 - End-to-end library-management workflow.
 
 ## Current gate
-Re-run the Resonance acceptance harness. If bridge generation, analysis, tests, and builds pass, verify the current library workflow and record implemented functions.
+Run/inspect the current temporary PR acceptance harness. Do not remove it until a verified green run or a verified replacement CI path exists.
