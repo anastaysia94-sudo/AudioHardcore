@@ -102,6 +102,7 @@ jobs:
         working-directory: work/resonance/flutter
         shell: bash
         run: |
+          cargo install cargo-expand --locked
           cargo install flutter_rust_bridge_codegen --version 2.13.0 --locked
           flutter pub get
           flutter_rust_bridge_codegen generate
@@ -218,6 +219,7 @@ jobs:
         working-directory: work/resonance/flutter
         shell: pwsh
         run: |
+          cargo install cargo-expand --locked
           cargo install flutter_rust_bridge_codegen --version 2.13.0 --locked
           flutter pub get
           flutter_rust_bridge_codegen generate
