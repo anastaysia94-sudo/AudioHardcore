@@ -77,13 +77,17 @@ jobs:
           hits = []
           for path in Path('.').rglob('*.rs'):
               text = path.read_text(encoding='utf-8')
-              count = text.count('struct NoopSink;')
-              if count:
-                  path.write_text(text.replace('struct NoopSink;', 'struct NoopSink {}'), encoding='utf-8')
-                  hits.extend([str(path)] * count)
+              definition_count = text.count('struct NoopSink;')
+              constructor_count = text.count('let sink = NoopSink;')
+              if definition_count or constructor_count:
+                  text = text.replace('struct NoopSink;', 'struct NoopSink {}')
+                  text = text.replace('let sink = NoopSink;', 'let sink = NoopSink {};')
+                  path.write_text(text, encoding='utf-8')
+                  hits.extend([f"{path}:definition"] * definition_count)
+                  hits.extend([f"{path}:constructor"] * constructor_count)
           print('patched_noop_sink=' + ','.join(hits))
-          if len(hits) != 1:
-              raise SystemExit(f'Expected exactly one NoopSink unit struct, found {len(hits)}')
+          if len(hits) != 2:
+              raise SystemExit(f'Expected one NoopSink definition and one constructor, found {len(hits)} total matches')
           PY
           cargo fmt --all
           cargo check --workspace --all-targets
@@ -183,13 +187,17 @@ jobs:
           hits = []
           for path in Path('.').rglob('*.rs'):
               text = path.read_text(encoding='utf-8')
-              count = text.count('struct NoopSink;')
-              if count:
-                  path.write_text(text.replace('struct NoopSink;', 'struct NoopSink {}'), encoding='utf-8')
-                  hits.extend([str(path)] * count)
+              definition_count = text.count('struct NoopSink;')
+              constructor_count = text.count('let sink = NoopSink;')
+              if definition_count or constructor_count:
+                  text = text.replace('struct NoopSink;', 'struct NoopSink {}')
+                  text = text.replace('let sink = NoopSink;', 'let sink = NoopSink {};')
+                  path.write_text(text, encoding='utf-8')
+                  hits.extend([f"{path}:definition"] * definition_count)
+                  hits.extend([f"{path}:constructor"] * constructor_count)
           print('patched_noop_sink=' + ','.join(hits))
-          if len(hits) != 1:
-              raise SystemExit(f'Expected exactly one NoopSink unit struct, found {len(hits)}')
+          if len(hits) != 2:
+              raise SystemExit(f'Expected one NoopSink definition and one constructor, found {len(hits)} total matches')
           '@ | python -
           cargo fmt --all
           cargo check --workspace --all-targets
