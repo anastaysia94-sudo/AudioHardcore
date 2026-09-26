@@ -68,6 +68,26 @@ jobs:
       - name: Generate genuine Android Flutter scaffold
         working-directory: work/resonance/flutter
         run: flutter create --platforms=android --org com.smartpickshop --project-name resonance .
+      - name: Normalize Flutter-Rust bridge NoopSink shape
+        working-directory: work/resonance
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          hits = []
+          for path in Path('.').rglob('*.rs'):
+              text = path.read_text(encoding='utf-8')
+              count = text.count('struct NoopSink;')
+              if count:
+                  path.write_text(text.replace('struct NoopSink;', 'struct NoopSink {}'), encoding='utf-8')
+                  hits.extend([str(path)] * count)
+          print('patched_noop_sink=' + ','.join(hits))
+          if len(hits) != 1:
+              raise SystemExit(f'Expected exactly one NoopSink unit struct, found {len(hits)}')
+          PY
+          cargo fmt --all
+          cargo check --workspace --all-targets
+
       - name: Generate Flutter-Rust bridge
         working-directory: work/resonance/flutter
         shell: bash
@@ -154,6 +174,26 @@ jobs:
         working-directory: work/resonance/flutter
         shell: pwsh
         run: flutter create --platforms=windows --org com.smartpickshop --project-name resonance .
+      - name: Normalize Flutter-Rust bridge NoopSink shape
+        working-directory: work/resonance
+        shell: pwsh
+        run: |
+          @'
+          from pathlib import Path
+          hits = []
+          for path in Path('.').rglob('*.rs'):
+              text = path.read_text(encoding='utf-8')
+              count = text.count('struct NoopSink;')
+              if count:
+                  path.write_text(text.replace('struct NoopSink;', 'struct NoopSink {}'), encoding='utf-8')
+                  hits.extend([str(path)] * count)
+          print('patched_noop_sink=' + ','.join(hits))
+          if len(hits) != 1:
+              raise SystemExit(f'Expected exactly one NoopSink unit struct, found {len(hits)}')
+          '@ | python -
+          cargo fmt --all
+          cargo check --workspace --all-targets
+
       - name: Generate Flutter-Rust bridge
         working-directory: work/resonance/flutter
         shell: pwsh
