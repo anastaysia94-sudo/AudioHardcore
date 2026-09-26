@@ -79,15 +79,18 @@ jobs:
               text = path.read_text(encoding='utf-8')
               definition_count = text.count('struct NoopSink;')
               constructor_count = text.count('let sink = NoopSink;')
-              if definition_count or constructor_count:
+              picker_count = text.count('FilePicker.platform.')
+              if definition_count or constructor_count or picker_count:
                   text = text.replace('struct NoopSink;', 'struct NoopSink {}')
                   text = text.replace('let sink = NoopSink;', 'let sink = NoopSink {};')
+                  text = text.replace('FilePicker.platform.', 'FilePicker.')
                   path.write_text(text, encoding='utf-8')
                   hits.extend([f"{path}:definition"] * definition_count)
                   hits.extend([f"{path}:constructor"] * constructor_count)
-          print('patched_noop_sink=' + ','.join(hits))
-          if len(hits) != 2:
-              raise SystemExit(f'Expected one NoopSink definition and one constructor, found {len(hits)} total matches')
+                  hits.extend([f"{path}:file_picker"] * picker_count)
+          print('patched_bridge_compat=' + ','.join(hits))
+          if len(hits) != 3:
+              raise SystemExit(f'Expected one NoopSink definition, one constructor, and one FilePicker.platform call; found {len(hits)} total matches')
           PY
           cargo fmt --all
           cargo check --workspace --all-targets
@@ -189,15 +192,18 @@ jobs:
               text = path.read_text(encoding='utf-8')
               definition_count = text.count('struct NoopSink;')
               constructor_count = text.count('let sink = NoopSink;')
-              if definition_count or constructor_count:
+              picker_count = text.count('FilePicker.platform.')
+              if definition_count or constructor_count or picker_count:
                   text = text.replace('struct NoopSink;', 'struct NoopSink {}')
                   text = text.replace('let sink = NoopSink;', 'let sink = NoopSink {};')
+                  text = text.replace('FilePicker.platform.', 'FilePicker.')
                   path.write_text(text, encoding='utf-8')
                   hits.extend([f"{path}:definition"] * definition_count)
                   hits.extend([f"{path}:constructor"] * constructor_count)
-          print('patched_noop_sink=' + ','.join(hits))
-          if len(hits) != 2:
-              raise SystemExit(f'Expected one NoopSink definition and one constructor, found {len(hits)} total matches')
+                  hits.extend([f"{path}:file_picker"] * picker_count)
+          print('patched_bridge_compat=' + ','.join(hits))
+          if len(hits) != 3:
+              raise SystemExit(f'Expected one NoopSink definition, one constructor, and one FilePicker.platform call; found {len(hits)} total matches')
           '@ | python -
           cargo fmt --all
           cargo check --workspace --all-targets
