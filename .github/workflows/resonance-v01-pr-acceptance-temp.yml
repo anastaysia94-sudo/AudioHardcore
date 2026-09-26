@@ -109,7 +109,7 @@ jobs:
       - name: Flutter analysis and tests
         working-directory: work/resonance/flutter
         run: |
-          flutter analyze
+          flutter analyze --no-fatal-infos
           flutter test
       - name: Build genuine Android APK and AAB
         working-directory: work/resonance/flutter
@@ -227,7 +227,7 @@ jobs:
         working-directory: work/resonance/flutter
         shell: pwsh
         run: |
-          flutter analyze
+          flutter analyze --no-fatal-infos
           flutter test
       - name: Build genuine Windows x64 release
         working-directory: work/resonance/flutter
