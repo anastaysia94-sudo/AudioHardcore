@@ -73,7 +73,6 @@ jobs:
         shell: bash
         run: |
           cargo install flutter_rust_bridge_codegen --version 2.13.0 --locked
-          flutter_rust_bridge_codegen integrate --integration-backend native-assets
           flutter pub get
           flutter_rust_bridge_codegen generate
       - name: Flutter analysis and tests
@@ -160,7 +159,6 @@ jobs:
         shell: pwsh
         run: |
           cargo install flutter_rust_bridge_codegen --version 2.13.0 --locked
-          flutter_rust_bridge_codegen integrate --integration-backend native-assets
           flutter pub get
           flutter_rust_bridge_codegen generate
       - name: Flutter analysis and tests
