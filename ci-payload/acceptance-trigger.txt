@@ -12,3 +12,5 @@ CI rerun after removing redundant flutter_rust_bridge integrate bootstrap.
 FRB NoopSink normalization verification.
 
 FRB NoopSink constructor normalization verification.
+
+file_picker v12+ API normalization verification.
