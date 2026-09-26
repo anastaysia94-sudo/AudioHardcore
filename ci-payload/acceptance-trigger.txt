@@ -5,3 +5,4 @@ Do not merge this branch into AudioHardcore main.
 pass-5: normalize staging formatting before acceptance
 pass-6: allow known unit-struct Clippy style lint
 pass-7: treat Clippy style lints as non-blocking in TEMP archive acceptance
+pass-8: explicitly allow unit-struct style lint
