@@ -79,14 +79,17 @@ jobs:
               text = path.read_text(encoding='utf-8')
               definition_count = text.count('struct NoopSink;')
               constructor_count = text.count('let sink = NoopSink;')
-              picker_count = text.count('FilePicker.platform.')
-              if definition_count or constructor_count or picker_count:
+              if definition_count or constructor_count:
                   text = text.replace('struct NoopSink;', 'struct NoopSink {}')
                   text = text.replace('let sink = NoopSink;', 'let sink = NoopSink {};')
-                  text = text.replace('FilePicker.platform.', 'FilePicker.')
                   path.write_text(text, encoding='utf-8')
                   hits.extend([f"{path}:definition"] * definition_count)
                   hits.extend([f"{path}:constructor"] * constructor_count)
+          for path in Path('.').rglob('*.dart'):
+              text = path.read_text(encoding='utf-8')
+              picker_count = text.count('FilePicker.platform.')
+              if picker_count:
+                  path.write_text(text.replace('FilePicker.platform.', 'FilePicker.'), encoding='utf-8')
                   hits.extend([f"{path}:file_picker"] * picker_count)
           print('patched_bridge_compat=' + ','.join(hits))
           if len(hits) != 3:
@@ -192,14 +195,17 @@ jobs:
               text = path.read_text(encoding='utf-8')
               definition_count = text.count('struct NoopSink;')
               constructor_count = text.count('let sink = NoopSink;')
-              picker_count = text.count('FilePicker.platform.')
-              if definition_count or constructor_count or picker_count:
+              if definition_count or constructor_count:
                   text = text.replace('struct NoopSink;', 'struct NoopSink {}')
                   text = text.replace('let sink = NoopSink;', 'let sink = NoopSink {};')
-                  text = text.replace('FilePicker.platform.', 'FilePicker.')
                   path.write_text(text, encoding='utf-8')
                   hits.extend([f"{path}:definition"] * definition_count)
                   hits.extend([f"{path}:constructor"] * constructor_count)
+          for path in Path('.').rglob('*.dart'):
+              text = path.read_text(encoding='utf-8')
+              picker_count = text.count('FilePicker.platform.')
+              if picker_count:
+                  path.write_text(text.replace('FilePicker.platform.', 'FilePicker.'), encoding='utf-8')
                   hits.extend([f"{path}:file_picker"] * picker_count)
           print('patched_bridge_compat=' + ','.join(hits))
           if len(hits) != 3:
