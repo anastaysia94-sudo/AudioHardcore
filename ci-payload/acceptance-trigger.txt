@@ -3,3 +3,4 @@ Source payload family: build-v2-input.part-*
 Purpose: trigger the isolated draft PR CI lane after the temporary base-branch verifier became available.
 Do not merge this branch into AudioHardcore main.
 pass-5: normalize staging formatting before acceptance
+pass-6: allow known unit-struct Clippy style lint
