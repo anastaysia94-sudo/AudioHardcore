@@ -10,3 +10,5 @@ pass-8: explicitly allow unit-struct style lint
 CI rerun after removing redundant flutter_rust_bridge integrate bootstrap.
 
 FRB NoopSink normalization verification.
+
+FRB NoopSink constructor normalization verification.
