@@ -61,6 +61,7 @@ jobs:
       - name: Rust tests and quality gate
         working-directory: work/resonance
         run: |
+          cargo fmt --all
           cargo fmt --all -- --check
           cargo test --workspace --all-targets
           cargo clippy --workspace --all-targets -- -D warnings -A clippy::derivable_impls
@@ -146,6 +147,7 @@ jobs:
         working-directory: work/resonance
         shell: pwsh
         run: |
+          cargo fmt --all
           cargo fmt --all -- --check
           cargo test --workspace --all-targets
           cargo clippy --workspace --all-targets -- -D warnings -A clippy::derivable_impls
