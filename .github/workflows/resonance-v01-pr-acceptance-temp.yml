@@ -1,0 +1,190 @@
+name: Resonance v0.1 PR Acceptance TEMP
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ci-payload/**'
+
+permissions:
+  contents: read
+
+env:
+  RESONANCE_ARCHIVE_SHA256: 887aa60bdefd65c07b5210cc9129f2d1e7cb57805c79e98fc249fda030af9a0e
+
+jobs:
+  android:
+    if: github.head_ref == 'resonance-v0.1-build-staging'
+    name: Rust + Flutter + Android acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reconstruct and verify Resonance source
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64, glob, hashlib, os, pathlib, tarfile
+          parts = sorted(glob.glob('ci-payload/source-xz2.part-*'))
+          if not parts:
+              raise SystemExit('No fixed Resonance source parts found')
+          encoded = ''.join(pathlib.Path(p).read_text(encoding='utf-8').strip() for p in parts)
+          payload = base64.b64decode(encoded, validate=True)
+          actual = hashlib.sha256(payload).hexdigest()
+          expected = os.environ['RESONANCE_ARCHIVE_SHA256']
+          print('payload_sha256=' + actual)
+          if actual != expected:
+              raise SystemExit(f'Payload checksum mismatch: {actual} != {expected}')
+          archive = pathlib.Path('resonance-build-input.tar.xz')
+          archive.write_bytes(payload)
+          with tarfile.open(archive, 'r:xz') as t:
+              t.extractall('work')
+          assert pathlib.Path('work/resonance/Cargo.toml').is_file()
+          assert pathlib.Path('work/resonance/flutter/pubspec.yaml').is_file()
+          PY
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: dtolnay/rust-toolchain@1.98.1
+        with:
+          components: rustfmt, clippy
+          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android,i686-linux-android
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: stable
+          cache: true
+      - name: Rust tests and quality gate
+        working-directory: work/resonance
+        run: |
+          cargo fmt --all -- --check
+          cargo test --workspace --all-targets
+          cargo clippy --workspace --all-targets -- -D warnings
+      - name: Generate genuine Android Flutter scaffold
+        working-directory: work/resonance/flutter
+        run: flutter create --platforms=android --org com.smartpickshop --project-name resonance .
+      - name: Generate Flutter-Rust bridge
+        working-directory: work/resonance/flutter
+        shell: bash
+        run: |
+          cargo install flutter_rust_bridge_codegen --version 2.13.0 --locked
+          flutter_rust_bridge_codegen integrate --integration-backend native-assets
+          flutter pub get
+          flutter_rust_bridge_codegen generate
+      - name: Flutter analysis and tests
+        working-directory: work/resonance/flutter
+        run: |
+          flutter analyze
+          flutter test
+      - name: Build genuine Android APK and AAB
+        working-directory: work/resonance/flutter
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+      - name: Record Android checksums and scaffold
+        working-directory: work/resonance/flutter
+        shell: bash
+        run: |
+          sha256sum build/app/outputs/flutter-apk/app-release.apk > ANDROID_SHA256SUMS.txt
+          sha256sum build/app/outputs/bundle/release/app-release.aab >> ANDROID_SHA256SUMS.txt
+          tar -czf resonance-android-scaffold.tar.gz android hook lib/src/rust rust/src/frb_generated.rs pubspec.yaml pubspec.lock flutter_rust_bridge.yaml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resonance-v0.1.0-alpha.2-android
+          if-no-files-found: error
+          path: |
+            work/resonance/flutter/build/app/outputs/flutter-apk/app-release.apk
+            work/resonance/flutter/build/app/outputs/bundle/release/app-release.aab
+            work/resonance/flutter/ANDROID_SHA256SUMS.txt
+            work/resonance/flutter/resonance-android-scaffold.tar.gz
+
+  windows:
+    if: github.head_ref == 'resonance-v0.1-build-staging'
+    name: Rust + Flutter + Windows acceptance
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reconstruct and verify Resonance source
+        shell: pwsh
+        run: |
+          @'
+          import base64, glob, hashlib, os, pathlib, tarfile
+          parts = sorted(glob.glob('ci-payload/source-xz2.part-*'))
+          if not parts:
+              raise SystemExit('No fixed Resonance source parts found')
+          encoded = ''.join(pathlib.Path(p).read_text(encoding='utf-8').strip() for p in parts)
+          payload = base64.b64decode(encoded, validate=True)
+          actual = hashlib.sha256(payload).hexdigest()
+          expected = os.environ['RESONANCE_ARCHIVE_SHA256']
+          print('payload_sha256=' + actual)
+          if actual != expected:
+              raise SystemExit(f'Payload checksum mismatch: {actual} != {expected}')
+          archive = pathlib.Path('resonance-build-input.tar.xz')
+          archive.write_bytes(payload)
+          with tarfile.open(archive, 'r:xz') as t:
+              t.extractall('work')
+          assert pathlib.Path('work/resonance/Cargo.toml').is_file()
+          assert pathlib.Path('work/resonance/flutter/pubspec.yaml').is_file()
+          '@ | python -
+      - uses: dtolnay/rust-toolchain@1.98.1
+        with:
+          components: rustfmt, clippy
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.2'
+          channel: stable
+          cache: true
+      - name: Compile and test Windows Rust workspace
+        working-directory: work/resonance
+        shell: pwsh
+        run: |
+          cargo fmt --all -- --check
+          cargo test --workspace --all-targets
+          cargo clippy --workspace --all-targets -- -D warnings
+      - name: Generate genuine Windows Flutter scaffold
+        working-directory: work/resonance/flutter
+        shell: pwsh
+        run: flutter create --platforms=windows --org com.smartpickshop --project-name resonance .
+      - name: Generate Flutter-Rust bridge
+        working-directory: work/resonance/flutter
+        shell: pwsh
+        run: |
+          cargo install flutter_rust_bridge_codegen --version 2.13.0 --locked
+          flutter_rust_bridge_codegen integrate --integration-backend native-assets
+          flutter pub get
+          flutter_rust_bridge_codegen generate
+      - name: Flutter analysis and tests
+        working-directory: work/resonance/flutter
+        shell: pwsh
+        run: |
+          flutter analyze
+          flutter test
+      - name: Build genuine Windows x64 release
+        working-directory: work/resonance/flutter
+        shell: pwsh
+        run: flutter build windows --release
+      - name: Package Windows release and checksums
+        working-directory: work/resonance/flutter
+        shell: pwsh
+        run: |
+          $release = 'build/windows/x64/runner/Release'
+          if (!(Test-Path $release)) { throw 'Windows release directory missing' }
+          Compress-Archive -Path "$release/*" -DestinationPath resonance-windows-x64-release.zip -Force
+          (Get-FileHash resonance-windows-x64-release.zip -Algorithm SHA256).Hash.ToLower() + '  resonance-windows-x64-release.zip' | Out-File WINDOWS_SHA256SUMS.txt -Encoding ascii
+          Compress-Archive -Path windows,hook,lib/src/rust,rust/src/frb_generated.rs,pubspec.yaml,pubspec.lock,flutter_rust_bridge.yaml -DestinationPath resonance-windows-scaffold.zip -Force
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resonance-v0.1.0-alpha.2-windows
+          if-no-files-found: error
+          path: |
+            work/resonance/flutter/resonance-windows-x64-release.zip
+            work/resonance/flutter/WINDOWS_SHA256SUMS.txt
+            work/resonance/flutter/resonance-windows-scaffold.zip
