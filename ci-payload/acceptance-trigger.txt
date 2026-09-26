@@ -16,3 +16,4 @@ FRB NoopSink constructor normalization verification.
 file_picker v12+ API normalization verification.
 
 Dart file_picker source-scan verification.
+pass-18: install cargo-expand before Flutter-Rust bridge generation
