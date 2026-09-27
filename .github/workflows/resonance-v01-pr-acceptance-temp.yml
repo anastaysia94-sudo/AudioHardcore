@@ -40,6 +40,10 @@ jobs:
           PY
           echo '--- folder-related Dart source/test lines ---'
           grep -RInE "Add music folder|add.*folder|folder.*add|music folder|folder-first" work/resonance/flutter/lib work/resonance/flutter/test || true
+          echo '--- widget test ---'
+          sed -n '1,80p' work/resonance/flutter/test/widget_test.dart
+          echo '--- app init/build around folder button ---'
+          sed -n '1,165p' work/resonance/flutter/lib/ui/resonance_app.dart
           echo '--- relevant test files ---'
           find work/resonance/flutter/test -type f -maxdepth 3 -print || true
 
