@@ -13,6 +13,36 @@ env:
   RESONANCE_ARCHIVE_SHA256: 887aa60bdefd65c07b5210cc9129f2d1e7cb57805c79e98fc249fda030af9a0e
 
 jobs:
+
+  source-diagnostic:
+    if: github.head_ref == 'resonance-v0.1-build-staging'
+    name: Inspect packed folder workflow labels
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct source and inspect folder workflow text
+        shell: bash
+        run: |
+          python - <<'PY'
+          import base64, glob, hashlib, os, pathlib, tarfile
+          parts = sorted(glob.glob('ci-payload/source-xz2.part-*'))
+          encoded = ''.join(pathlib.Path(p).read_text(encoding='utf-8').strip() for p in parts)
+          payload = base64.b64decode(encoded, validate=True)
+          actual = hashlib.sha256(payload).hexdigest()
+          expected = os.environ['RESONANCE_ARCHIVE_SHA256']
+          if actual != expected:
+              raise SystemExit(f'Payload checksum mismatch: {actual} != {expected}')
+          archive = pathlib.Path('resonance-build-input.tar.xz')
+          archive.write_bytes(payload)
+          with tarfile.open(archive, 'r:xz') as t:
+              t.extractall('work')
+          PY
+          echo '--- folder-related Dart source/test lines ---'
+          grep -RInE "Add music folder|add.*folder|folder.*add|music folder|folder-first" work/resonance/flutter/lib work/resonance/flutter/test || true
+          echo '--- relevant test files ---'
+          find work/resonance/flutter/test -type f -maxdepth 3 -print || true
+
   android:
     if: github.head_ref == 'resonance-v0.1-build-staging'
     name: Rust + Flutter + Android acceptance
