@@ -19,3 +19,4 @@ Dart file_picker source-scan verification.
 pass-18: install cargo-expand before Flutter-Rust bridge generation
 pass-19: keep Flutter info lints non-fatal after FRB codegen
 pass-20: fast source diagnostic for folder-workflow acceptance mismatch
+pass-21: inspect Resonance widget initialization context
