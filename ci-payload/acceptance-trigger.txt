@@ -1,0 +1,24 @@
+Resonance v0.1 acceptance verification trigger
+Source payload family: build-v2-input.part-*
+Purpose: trigger the isolated draft PR CI lane after the temporary base-branch verifier became available.
+Do not merge this branch into AudioHardcore main.
+pass-5: normalize staging formatting before acceptance
+pass-6: allow known unit-struct Clippy style lint
+pass-7: treat Clippy style lints as non-blocking in TEMP archive acceptance
+pass-8: explicitly allow unit-struct style lint
+
+CI rerun after removing redundant flutter_rust_bridge integrate bootstrap.
+
+FRB NoopSink normalization verification.
+
+FRB NoopSink constructor normalization verification.
+
+file_picker v12+ API normalization verification.
+
+Dart file_picker source-scan verification.
+pass-18: install cargo-expand before Flutter-Rust bridge generation
+pass-19: keep Flutter info lints non-fatal after FRB codegen
+pass-20: fast source diagnostic for folder-workflow acceptance mismatch
+pass-21: inspect Resonance widget initialization context
+pass-22: run desktop-sized widget acceptance viewport
+pass-23: package Resonance artifacts without optional hook directory
