@@ -181,7 +181,9 @@ jobs:
         run: |
           sha256sum build/app/outputs/flutter-apk/app-release.apk > ANDROID_SHA256SUMS.txt
           sha256sum build/app/outputs/bundle/release/app-release.aab >> ANDROID_SHA256SUMS.txt
-          tar -czf resonance-android-scaffold.tar.gz android hook lib/src/rust rust/src/frb_generated.rs pubspec.yaml pubspec.lock flutter_rust_bridge.yaml
+          scaffold=(android lib/src/rust rust/src/frb_generated.rs pubspec.yaml pubspec.lock flutter_rust_bridge.yaml)
+          if [ -e hook ]; then scaffold+=(hook); fi
+          tar -czf resonance-android-scaffold.tar.gz "${scaffold[@]}"
       - uses: actions/upload-artifact@v4
         with:
           name: resonance-v0.1.0-alpha.2-android
@@ -325,7 +327,9 @@ jobs:
           if (!(Test-Path $release)) { throw 'Windows release directory missing' }
           Compress-Archive -Path "$release/*" -DestinationPath resonance-windows-x64-release.zip -Force
           (Get-FileHash resonance-windows-x64-release.zip -Algorithm SHA256).Hash.ToLower() + '  resonance-windows-x64-release.zip' | Out-File WINDOWS_SHA256SUMS.txt -Encoding ascii
-          Compress-Archive -Path windows,hook,lib/src/rust,rust/src/frb_generated.rs,pubspec.yaml,pubspec.lock,flutter_rust_bridge.yaml -DestinationPath resonance-windows-scaffold.zip -Force
+          $scaffold = @('windows','lib/src/rust','rust/src/frb_generated.rs','pubspec.yaml','pubspec.lock','flutter_rust_bridge.yaml')
+          if (Test-Path 'hook') { $scaffold += 'hook' }
+          Compress-Archive -Path $scaffold -DestinationPath resonance-windows-scaffold.zip -Force
       - uses: actions/upload-artifact@v4
         with:
           name: resonance-v0.1.0-alpha.2-windows
