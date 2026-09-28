@@ -21,3 +21,4 @@ pass-19: keep Flutter info lints non-fatal after FRB codegen
 pass-20: fast source diagnostic for folder-workflow acceptance mismatch
 pass-21: inspect Resonance widget initialization context
 pass-22: run desktop-sized widget acceptance viewport
+pass-23: package Resonance artifacts without optional hook directory
